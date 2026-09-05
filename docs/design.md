@@ -102,7 +102,7 @@ new floor is a deliberate decision with its own diff.
   agent actually did, which is a starting point and explicitly not ground
   truth - grading an agent against its own past behavior measures consistency,
   not correctness.
-- **Sample size.** 33 cases supports a headline number to roughly the nearest
+- **Sample size.** 37 cases supports a headline number to roughly the nearest
   four points. Any per-category number here is directional only; those cells
   hold three to six cases each. 150-300 cases is where the category breakdown
   starts carrying real weight.

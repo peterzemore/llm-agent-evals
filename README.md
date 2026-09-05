@@ -28,10 +28,10 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 
 | Metric | Value |
 | --- | --- |
-| Cases | 33 |
-| Task success | 90.9% |
-| Tool accuracy | 97.0% |
-| Argument accuracy | 93.9% |
+| Cases | 37 |
+| Task success | 91.9% |
+| Tool accuracy | 97.3% |
+| Argument accuracy | 94.6% |
 | Guarded-phrase hits | 0.0% |
 | Latency p50 / p95 | 588 ms / 845 ms |
 | Cost per case | $0.0035 |
@@ -41,13 +41,13 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 | stock | 7 | 86% | 100% | 86% |
 | order | 5 | 60% | 80% | 80% |
 | loyalty | 3 | 100% | 100% | 100% |
-| callback | 3 | 100% | 100% | 100% |
-| grounding | 4 | 100% | 100% | 100% |
+| callback | 4 | 100% | 100% | 100% |
+| grounding | 7 | 100% | 100% | 100% |
 | static_fact | 4 | 100% | 100% | 100% |
 | out_of_scope | 3 | 100% | 100% | 100% |
 | adversarial | 4 | 100% | 100% | 100% |
 
-33 cases supports the headline to roughly the nearest three points; the
+37 cases supports the headline to roughly the nearest three points; the
 per-category cells hold three to six cases each and are directional only. The
 honest read of this table is the `order` row, not the headline.
 
@@ -93,6 +93,22 @@ cannot come back quietly:
 - **Claiming which grails are in stock**, and **promising a delivery day**,
   both of which store policy forbids for the same reason: the agent does not
   actually know.
+- **Promising a callback the system never logged.** A spoken phone number
+  arrived as its last seven digits, was stored as-is, and the caller was told
+  someone would be in touch. Nobody could call that number back, and the record
+  looked fine in the log.
+- **Denying a policy it was never given.** Asked whether the store hosts
+  birthday parties — a fact that appears nowhere — it answered "no, we don't."
+  A denial is a policy claim exactly as much as an affirmation is.
+- **Saying the store's web address two different ways.** The greeting said it
+  correctly and a stock referral did not, because tool results are relayed
+  close to verbatim and carried the bare domain. The hybrid it produced names a
+  domain the store does not own.
+
+Each was found by making a real call and listening, then written down as a case
+before the fix was allowed to count. All of them are caught by guarded phrases
+rather than by the judge, which is the cheaper half of the suite doing the
+work.
 
 All four pass the mechanical checks — right tool, right arguments — and fail on
 what gets said. That is the class of bug a deterministic matcher cannot see,
@@ -233,7 +249,7 @@ Seed suite, honestly scoped. Documented in `docs/design.md`:
 
 - Most cases are synthetic, written from the shape of real calls. The
   `grounding` four are modeled on real, documented production bugs.
-- 33 cases is a seed; 150–300 is where per-category numbers carry weight.
+- 37 cases is a seed; 150–300 is where per-category numbers carry weight.
 - Single-turn, plus primed second-turn cases via `context`. A full multi-turn
   flow — collecting a name and email across turns — is not yet covered.
 - Latency excludes transcription and text-to-speech, which dominate what a
