@@ -156,6 +156,34 @@ the judge waved through that a human failed — is the list that matters. Below
 about 0.6 kappa, the rubric is ambiguous and the judge's numbers don't mean
 anything yet.
 
+**What it currently measures — and why that isn't a claim yet.** Running the
+judge over the frozen baseline and comparing it to the hand-labelled set:
+
+| | |
+|---|---|
+| Cases judged | 19 of 37 (the rubric-carrying ones) |
+| Cohen's kappa | **1.00** |
+| Raw agreement | 1.00 |
+| `false_pass` / `false_fail` | 0 / 0 |
+| Human pass rate | 94.7% (18 of 19) |
+| Judge errors | 0 |
+
+**That kappa should not be quoted as evidence, and the tool refuses to quote it
+either** — `calibrate` prints `Only 19 overlapping labels; kappa is not
+meaningful below 30` and the threshold is a flag, not a footnote. Two things are
+wrong with it. The sample is 19, well under the n≥30 floor. And the labels are
+skewed 18:1 toward pass, so a single disagreement would swing kappa by roughly
+0.4 — the estimate has no stability to speak of.
+
+Perfect agreement on a small, skewed set is what an easy classification task
+looks like, not what a good judge looks like. The honest reading is that the
+judge and the human have not yet disagreed anywhere, which is a prerequisite for
+trusting it, not proof of it.
+
+Making it meaningful needs more labelled cases *and* more labelled failures —
+kappa is driven by the off-diagonal, and there are currently zero entries there.
+That is what the dataset-growth work is for.
+
 **The replay adapter makes CI free.** Predictions are recorded once and
 replayed, so the gate runs on every PR with no API key and no spend. It also
 separates variables: with model behavior frozen, any metric movement is
