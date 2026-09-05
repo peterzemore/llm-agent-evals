@@ -17,7 +17,7 @@ class Adapter(Protocol):
 
 
 class Judge(Protocol):
-    def verdict(self, case: Case, prediction: Prediction) -> tuple[bool, str]: ...
+    def verdict(self, case: Case, prediction: Prediction) -> tuple[bool | None, str]: ...
 
 
 def score_one(case: Case, prediction: Prediction, judge: Judge | None = None) -> CaseResult:

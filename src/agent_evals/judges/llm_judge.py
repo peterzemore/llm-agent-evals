@@ -47,7 +47,7 @@ Does this turn satisfy the rubric?"""
 
 
 class ClaudeJudge:
-    def __init__(self, model: str = "claude-sonnet-5", max_tokens: int = 1024):
+    def __init__(self, model: str = "claude-sonnet-5", max_tokens: int = 2048):
         import anthropic  # lazy import; core harness has no hard dependency
         from pydantic import BaseModel
 
@@ -60,11 +60,43 @@ class ClaudeJudge:
         self.model = model
         self.max_tokens = max_tokens
         self.cost_usd = 0.0
+        self.errors: list[str] = []
 
-    def verdict(self, case: Case, prediction: Prediction) -> tuple[bool, str]:
-        response = self.client.messages.parse(
+    def verdict(self, case: Case, prediction: Prediction) -> tuple[bool | None, str]:
+        """Return (verdict, rationale). A verdict of None means the judge could
+        not be reached or could not be parsed - the case then stands on its
+        deterministic checks alone, rather than the whole run dying."""
+        try:
+            response = self._ask(case, prediction)
+        except Exception as exc:
+            reason = f"judge unavailable: {type(exc).__name__}: {exc}"
+            self.errors.append(f"{case.id}: {reason}")
+            return None, reason
+
+        parsed = response.parsed_output
+        if parsed is None:
+            reason = (
+                f"judge returned no parsable verdict (stop_reason="
+                f"{response.stop_reason})"
+            )
+            self.errors.append(f"{case.id}: {reason}")
+            return None, reason
+
+        usage = response.usage
+        self.cost_usd += estimate_cost(self.model, usage.input_tokens, usage.output_tokens)
+        return bool(parsed.passed), parsed.rationale.strip()
+
+    def _ask(self, case: Case, prediction: Prediction):
+        return self.client.messages.parse(
             model=self.model,
             max_tokens=self.max_tokens,
+            # Sonnet 5 runs adaptive thinking by default, and thinking tokens
+            # come out of the same max_tokens budget as the response. On a
+            # structured-output call that shows up as JSON truncated mid-string
+            # and a parse error, not as a stop_reason you would notice. Grading
+            # against a rubric is a classification, so the reasoning buys little
+            # here and the rationale field gives it somewhere to justify itself.
+            thinking={"type": "disabled"},
             system=SYSTEM_PROMPT,
             messages=[
                 {
@@ -80,8 +112,3 @@ class ClaudeJudge:
             ],
             output_format=self._verdict_model,
         )
-        usage = response.usage
-        self.cost_usd += estimate_cost(self.model, usage.input_tokens, usage.output_tokens)
-
-        parsed = response.parsed_output
-        return bool(parsed.passed), parsed.rationale.strip()

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -18,6 +19,27 @@ from .gates import evaluate, load_gates
 from .metrics import aggregate
 from .report import render
 from .runner import run
+
+
+def _load_dotenv(path: str | Path = ".env") -> None:
+    """Fill unset environment variables from a local .env, if there is one.
+
+    Deliberately dependency-free and deliberately non-overriding: an explicitly
+    exported variable always wins over the file, so a checked-out .env cannot
+    silently redirect a run at someone else's key.
+    """
+    env_path = Path(path)
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
 
 
 def _build_adapter(args: argparse.Namespace):
@@ -63,6 +85,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     metrics = aggregate(results)
     if judge is not None:
         metrics["judge_cost_usd"] = round(judge.cost_usd, 6)
+        metrics["judge_error_n"] = len(judge.errors)
 
     violations: list[str] = []
     if args.gates:
@@ -410,6 +433,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _load_dotenv()
     args = build_parser().parse_args(argv)
     return args.func(args)
 
