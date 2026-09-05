@@ -128,6 +128,240 @@ def _cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_agent_turns(path: str | Path) -> dict[str, dict]:
+    """Load what the agent did, from either a predictions jsonl or a results.json.
+
+    Judge verdicts are deliberately dropped here. Grading is only worth doing
+    blind - a human who has already read the judge's answer is checking the
+    judge's work, not producing an independent label.
+    """
+    text = Path(path).read_text()
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        payload = None
+
+    if isinstance(payload, dict) and "results" in payload:
+        return {
+            r["case_id"]: {
+                "tool": r.get("predicted_tool"),
+                "args": r.get("predicted_args") or {},
+                "response_text": r.get("response_text", ""),
+            }
+            for r in payload["results"]
+        }
+
+    from .dataset import load_predictions
+
+    return {
+        case_id: {"tool": p.tool, "args": p.args, "response_text": p.response_text}
+        for case_id, p in load_predictions(path).items()
+    }
+
+
+WORKSHEET_HEADER = """# Grading worksheet
+
+Replace each `verdict: ???` with `pass` or `fail`, and optionally fill in `note:`.
+Leave `???` on any case you want to skip. Then run:
+
+    agent-evals label --dataset {dataset} --from-worksheet {path} --out labels.jsonl
+
+You are grading THE AGENT - the AI answering the phone. The customer is only the
+input. Each block shows what the customer said, then what the agent did in
+response; the rubric describes what the agent was required to do.
+
+Grade against the rubric text only, not against how you would have phrased it.
+If a case makes you hesitate, the rubric is ambiguous - say so in the note.
+"""
+
+
+def _write_worksheet(cases, turns, dataset: str, path: Path) -> int:
+    blocks = [WORKSHEET_HEADER.format(dataset=dataset, path=path)]
+    for case in cases:
+        turn = turns.get(case.id, {})
+        args = turn.get("args")
+        blocks.append(
+            f"""
+## {case.id}  ({case.category})
+
+CUSTOMER SAID: {case.utterance}
+
+RUBRIC (what the agent was required to do): {case.rubric}
+
+--- what the agent did in response ---
+  tool called:   {turn.get('tool') or '(none - answered directly)'}
+  arguments:     {args if args else '(none)'}
+  agent replied: {turn.get('response_text') or '(nothing said)'}
+
+verdict: ???
+note:
+
+---
+"""
+        )
+    path.write_text("\n".join(blocks).strip() + "\n", encoding="utf-8")
+    print(f"Wrote {len(cases)} case(s) to {path}.")
+    print("Fill in the verdict lines, then re-run with --from-worksheet.")
+    return 0
+
+
+_PASS_WORDS = {"pass", "p", "yes", "y", "true", "ok"}
+_FAIL_WORDS = {"fail", "f", "no", "n", "false"}
+
+
+def _parse_worksheet(path: Path) -> tuple[list[dict], int]:
+    """Return (records, ungraded_count). Raises on an unreadable verdict."""
+    records: list[dict] = []
+    ungraded = 0
+    case_id: str | None = None
+    verdict: bool | None = None
+    note = ""
+
+    def flush() -> None:
+        nonlocal case_id, verdict, note, ungraded
+        if case_id is None:
+            return
+        if verdict is None:
+            ungraded += 1
+        else:
+            record: dict = {"case_id": case_id, "passed": verdict}
+            if note:
+                record["note"] = note
+            records.append(record)
+        case_id, verdict, note = None, None, ""
+
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw.strip()
+        if line.startswith("## "):
+            flush()
+            case_id = line[3:].split()[0]
+        elif line.lower().startswith("verdict:"):
+            value = line.split(":", 1)[1].strip().lower()
+            if value in _PASS_WORDS:
+                verdict = True
+            elif value in _FAIL_WORDS:
+                verdict = False
+            elif value in ("", "???"):
+                verdict = None
+            else:
+                raise SystemExit(
+                    f"{path}:{lineno}: can't read verdict {value!r} - "
+                    "use 'pass', 'fail', or leave '???' to skip"
+                )
+        elif line.lower().startswith("note:"):
+            note = line.split(":", 1)[1].strip()
+    flush()
+    return records, ungraded
+
+
+def _cmd_label(args: argparse.Namespace) -> int:
+    cases = load_cases(args.dataset)
+    turns = _load_agent_turns(args.predictions)
+    if not args.out and not args.worksheet:
+        raise SystemExit("--out is required unless you are writing a --worksheet")
+    out_path = Path(args.out) if args.out else Path("labels.jsonl")
+
+    already: set[str] = set()
+    if out_path.exists():
+        for line in out_path.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                already.add(json.loads(line)["case_id"])
+
+    if args.from_worksheet:
+        records, ungraded = _parse_worksheet(Path(args.from_worksheet))
+        new = [r for r in records if r["case_id"] not in already]
+        with out_path.open("a", encoding="utf-8") as fh:
+            for record in new:
+                fh.write(json.dumps(record) + "\n")
+        print(f"Read {len(records)} graded case(s); wrote {len(new)} new to {out_path}.")
+        if ungraded:
+            print(f"{ungraded} case(s) still marked ??? and were left ungraded.")
+        if len(records) - len(new):
+            print(f"{len(records) - len(new)} already had a label and were left alone.")
+        return 0
+
+    todo = [c for c in cases if c.rubric and c.id not in already]
+    if not todo:
+        print(f"Nothing left to grade - {len(already)} case(s) already labeled in {out_path}.")
+        return 0
+
+    if args.worksheet:
+        return _write_worksheet(todo, turns, args.dataset, Path(args.worksheet))
+
+    print(f"{len(todo)} case(s) to grade. Answers save as you go, so quitting keeps your work.")
+    print("You are grading THE AGENT (the AI on the phone), not the customer.")
+    print("Grade against the rubric only, not against what you would have said.\n")
+
+    graded = 0
+    for i, case in enumerate(todo, start=1):
+        turn = turns.get(case.id, {})
+        print("=" * 72)
+        print(f"[{i}/{len(todo)}]  {case.id}  ({case.category})")
+        print()
+        print(f"  CUSTOMER SAID:  {case.utterance}")
+        print()
+        print(f"  RUBRIC (what the agent had to do):  {case.rubric}")
+        print()
+        print("  --- what the agent did in response ---")
+        print(f"    tool called:   {turn.get('tool') or '(none - answered directly)'}")
+        if turn.get("args"):
+            print(f"    arguments:     {turn['args']}")
+        print(f"    agent replied: {turn.get('response_text') or '(nothing said)'}")
+        print()
+
+        verdict: bool | None = None
+        while verdict is None:
+            try:
+                answer = input(
+                    "  Does this satisfy the rubric? [p]ass / [f]ail / [s]kip / [q]uit: "
+                )
+            except EOFError:
+                # No usable stdin - running under a harness, a pipe, or an editor
+                # shell. Point at the mode that works there instead of crashing.
+                print("\n\n  No interactive input available here.")
+                print("  Use worksheet mode instead:")
+                print("    agent-evals label --dataset ... --predictions ... "
+                      "--worksheet worksheet.md")
+                print("  Fill in the verdict lines, then:")
+                print("    agent-evals label --dataset ... --from-worksheet worksheet.md "
+                      "--out labels.jsonl")
+                return 2
+            answer = answer.strip().lower()
+            if answer in ("p", "pass"):
+                verdict = True
+            elif answer in ("f", "fail"):
+                verdict = False
+            elif answer in ("s", "skip"):
+                break
+            elif answer in ("q", "quit"):
+                print(f"\nStopped. {graded} label(s) saved to {out_path}.")
+                return 0
+            else:
+                print("  Please answer p, f, s, or q.")
+
+        if verdict is None:
+            print()
+            continue
+
+        record: dict[str, object] = {"case_id": case.id, "passed": verdict}
+        try:
+            note = input("  Why? (optional, enter to skip): ").strip()
+        except EOFError:
+            note = ""
+        if note:
+            record["note"] = note
+
+        with out_path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record) + "\n")
+        graded += 1
+        print()
+
+    print(f"Done. {graded} label(s) written to {out_path}.")
+    print(f"Now run:  agent-evals calibrate --results <results.json> --labels {out_path}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="agent-evals", description=__doc__)
     parser.add_argument("--version", action="version", version=__version__)
@@ -150,6 +384,21 @@ def build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("--json-out", help="write the full run payload here")
     run_p.add_argument("--quiet", action="store_true")
     run_p.set_defaults(func=_cmd_run)
+
+    lab_p = sub.add_parser("label", help="grade rubric cases by hand, blind to the judge")
+    lab_p.add_argument("--dataset", required=True)
+    lab_p.add_argument(
+        "--predictions",
+        required=True,
+        help="predictions jsonl or a results.json - judge verdicts are not shown",
+    )
+    lab_p.add_argument("--out", help="jsonl to append labels to; resumable")
+    lab_p.add_argument(
+        "--worksheet",
+        help="write a fill-in worksheet instead of prompting - for use without a terminal",
+    )
+    lab_p.add_argument("--from-worksheet", help="ingest a filled-in worksheet into --out")
+    lab_p.set_defaults(func=_cmd_label)
 
     cal_p = sub.add_parser("calibrate", help="compare judge verdicts to human labels")
     cal_p.add_argument("--results", required=True, help="run payload written by --json-out")

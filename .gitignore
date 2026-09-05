@@ -12,3 +12,6 @@ report.md
 results.json
 
 .env
+
+# Per-person grading scratch file
+worksheet.md

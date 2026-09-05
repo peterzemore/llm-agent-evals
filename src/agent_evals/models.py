@@ -30,6 +30,15 @@ class Case:
     forbidden_phrases: list[str] = field(default_factory=list)
     rubric: str = ""
     notes: str = ""
+    context: dict[str, Any] | None = None
+    """Optional priming for a second-turn case.
+
+    ``{"tool": ..., "args": {...}, "result": "..."}`` replays a tool call that
+    already happened, so the graded turn is what the agent SAYS once it has the
+    result. The failures worth catching here - asserting an item is out of stock
+    off an inventory miss, reading a same-franchise accessory as a Pop - all
+    happen on that turn, not on the turn that picks the tool.
+    """
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Case":
@@ -46,6 +55,7 @@ class Case:
             forbidden_phrases=d.get("forbidden_phrases") or [],
             rubric=d.get("rubric", ""),
             notes=d.get("notes", ""),
+            context=d.get("context"),
         )
 
 
@@ -124,6 +134,8 @@ class CaseResult:
             "utterance": self.case.utterance,
             "expected_tool": self.case.expected_tool,
             "predicted_tool": self.prediction.tool,
+            "predicted_args": self.prediction.args,
+            "response_text": self.prediction.response_text,
             "tool_correct": self.tool_correct,
             "args_correct": self.args_correct,
             "arg_failures": self.arg_failures,

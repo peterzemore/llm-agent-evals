@@ -28,13 +28,13 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 
 | Metric | Value |
 | --- | --- |
-| Cases | 28 |
-| Task success | 89.3% |
-| Tool accuracy | 96.4% |
-| Argument accuracy | 92.9% |
+| Cases | 32 |
+| Task success | 90.6% |
+| Tool accuracy | 96.9% |
+| Argument accuracy | 93.8% |
 | Guarded-phrase hits | 0.0% |
-| Latency p50 / p95 | 604 ms / 845 ms |
-| Cost per case | $0.0036 |
+| Latency p50 / p95 | 588 ms / 845 ms |
+| Cost per case | $0.0035 |
 
 | Category | n | Task success | Tool acc | Arg acc |
 | --- | ---: | ---: | ---: | ---: |
@@ -42,11 +42,12 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 | order | 5 | 60% | 80% | 80% |
 | loyalty | 3 | 100% | 100% | 100% |
 | callback | 3 | 100% | 100% | 100% |
+| grounding | 4 | 100% | 100% | 100% |
 | static_fact | 4 | 100% | 100% | 100% |
 | out_of_scope | 3 | 100% | 100% | 100% |
 | adversarial | 4 | 100% | 100% | 100% |
 
-28 cases supports the headline to roughly the nearest four points; the
+32 cases supports the headline to roughly the nearest three points; the
 per-category cells hold three to six cases each and are directional only. The
 honest read of this table is the `order` row, not the headline.
 
@@ -72,6 +73,31 @@ case that catches this uses a negative lookahead on the argument
 That last one is the general lesson: an assertion that the right thing is
 present usually needs a matching assertion that the wrong thing is absent.
 
+## Regression cases from real bugs
+
+The `grounding` category encodes failures this agent actually shipped, so they
+cannot come back quietly:
+
+- **A flat denial off an inventory miss.** A caller asked about Pokemon Funkos
+  and got "no." The inventory table is a periodically-synced snapshot, not a
+  live read, so a miss was never proof of absence. Fixed by hedging and
+  pointing at the website.
+- **A same-franchise accessory read as a Pop.** Second round of the same bug:
+  the search returned a Pokemon Loungefly backpack and crossbody bag, so the
+  result was non-empty, and the agent answered confidently off a result that
+  contained no Pop at all.
+- **Claiming which grails are in stock**, and **promising a delivery day**,
+  both of which store policy forbids for the same reason: the agent does not
+  actually know.
+
+All four pass the mechanical checks — right tool, right arguments — and fail on
+what gets said. That is the class of bug a deterministic matcher cannot see,
+and it is why the judge and the guarded phrases exist.
+
+These are also **second-turn** cases: the failure happens after the tool
+returns, so a case can prime the conversation with a tool result via a
+`context` block and grade what the agent says once it has one.
+
 ## How it works
 
 ```
@@ -96,10 +122,16 @@ looks excellent. Cohen's kappa scores it 0.0, which is why kappa is what gets
 reported — and there is a unit test asserting exactly that case.
 
 ```
+agent-evals label     --dataset datasets/sonny/cases.jsonl \
+                      --predictions results.json --out human_labels.jsonl
 agent-evals calibrate --results results.json --labels human_labels.jsonl
 ```
 
-Grade a sample by hand, blind to the judge, then compare. `false_pass` — cases
+`label` walks the rubric-carrying cases one at a time, showing the caller's
+utterance, the rubric, and what the agent did — and deliberately **not** the
+judge's verdict. A human who has already read the judge's answer is checking
+the judge's work, not producing an independent label. Answers append as you go,
+so quitting mid-way keeps them, and re-running resumes where you left off. `false_pass` — cases
 the judge waved through that a human failed — is the list that matters. Below
 about 0.6 kappa, the rubric is ambiguous and the judge's numbers don't mean
 anything yet.
@@ -135,7 +167,7 @@ agent performed goes red permanently and gets ignored within a week.
 
 ```bash
 pip install -e ".[dev]"      # core harness has no dependencies
-pytest -q                    # 28 tests
+pytest -q                    # 35 tests
 
 # score the frozen baseline (no API key needed)
 agent-evals run --dataset datasets/sonny/cases.jsonl \
@@ -195,9 +227,11 @@ docs/design.md     scope decisions and known gaps
 
 Seed suite, honestly scoped. Documented in `docs/design.md`:
 
-- Cases are synthetic, written from the shape of real calls.
-- 28 cases is a seed; 150–300 is where per-category numbers carry weight.
-- Single-turn only. The callback flow needs multi-turn cases to be covered.
+- Most cases are synthetic, written from the shape of real calls. The
+  `grounding` four are modeled on real, documented production bugs.
+- 32 cases is a seed; 150–300 is where per-category numbers carry weight.
+- Single-turn, plus primed second-turn cases via `context`. A full multi-turn
+  flow — collecting a name and email across turns — is not yet covered.
 - Latency excludes transcription and text-to-speech, which dominate what a
   caller actually experiences.
 

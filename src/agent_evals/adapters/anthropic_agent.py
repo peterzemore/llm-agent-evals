@@ -40,6 +40,38 @@ class AnthropicAgentAdapter:
         self.system_prompt = system_prompt
         self.tools: list[dict[str, Any]] = json.loads(Path(tools_path).read_text())
 
+    @staticmethod
+    def _messages_for(case: Case) -> list[dict[str, Any]]:
+        messages: list[dict[str, Any]] = [{"role": "user", "content": case.utterance}]
+        if case.context:
+            tool_use_id = "toolu_ctx_0"
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "id": tool_use_id,
+                            "name": case.context["tool"],
+                            "input": case.context.get("args", {}),
+                        }
+                    ],
+                }
+            )
+            messages.append(
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": tool_use_id,
+                            "content": case.context.get("result", ""),
+                        }
+                    ],
+                }
+            )
+        return messages
+
     def predict(self, case: Case) -> Prediction:
         started = time.perf_counter()
         response = self.client.messages.create(
@@ -53,7 +85,7 @@ class AnthropicAgentAdapter:
             tool_choice={"type": "auto"},
             thinking={"type": "adaptive"},
             output_config={"effort": self.effort},
-            messages=[{"role": "user", "content": case.utterance}],
+            messages=self._messages_for(case),
         )
         latency_ms = (time.perf_counter() - started) * 1000
 

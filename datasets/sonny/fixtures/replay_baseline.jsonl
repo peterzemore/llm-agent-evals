@@ -15,13 +15,13 @@
 {"case_id": "loyalty-001", "tool": "check_loyalty_points", "args": {"email": "marcus.webb@example.com"}, "response_text": "", "latency_ms": 596, "cost_usd": 0.0037}
 {"case_id": "loyalty-002", "tool": null, "args": {}, "response_text": "Sure - what's the email you use with us? I'll pull up your points.", "latency_ms": 430, "cost_usd": 0.0029}
 {"case_id": "loyalty-003", "tool": "check_loyalty_points", "args": {"email": "pete@example.com"}, "response_text": "", "latency_ms": 604, "cost_usd": 0.0038}
-{"case_id": "callback-001", "tool": "log_callback_request", "args": {"name": "Dave", "contact": "937-555-0142", "reason": "wants to sell about 40 pops"}, "response_text": "", "latency_ms": 869, "cost_usd": 0.0047}
+{"case_id": "callback-001", "tool": "log_callback_request", "args": {"name": "Dave", "contact": "dave.k@example.com", "reason": "buy/sell inquiry"}, "response_text": "", "latency_ms": 871, "cost_usd": 0.0047}
 {"case_id": "callback-002", "tool": "log_callback_request", "args": {"name": "Maria", "contact": "maria.lopez@example.com", "reason": "bulk order question"}, "response_text": "", "latency_ms": 845, "cost_usd": 0.0046}
-{"case_id": "callback-003", "tool": null, "args": {}, "response_text": "I can get someone to call you about that. Can I get your first name and the best number to reach you?", "latency_ms": 512, "cost_usd": 0.0031}
-{"case_id": "static-001", "tool": null, "args": {}, "response_text": "We're open until 8 tonight.", "latency_ms": 298, "cost_usd": 0.0024}
-{"case_id": "static-002", "tool": null, "args": {}, "response_text": "We're on East Main Street, right next to the coffee shop.", "latency_ms": 331, "cost_usd": 0.0026}
-{"case_id": "static-003", "tool": null, "args": {}, "response_text": "We do buy pops. Bring them in and we'll take a look, or I can have someone call you to talk it through.", "latency_ms": 402, "cost_usd": 0.0028}
-{"case_id": "static-004", "tool": null, "args": {}, "response_text": "Yep, Sunday we're open noon to five.", "latency_ms": 310, "cost_usd": 0.0025}
+{"case_id": "callback-003", "tool": null, "args": {}, "response_text": "Yes we do. Please send pictures over to support@petezpopz.com and a member of our team will respond as soon as possible. Can I get your name and email address, so we can follow up with you?", "latency_ms": 468, "cost_usd": 0.0031}
+{"case_id": "static-001", "tool": null, "args": {}, "response_text": "Saturday we're open eleven to seven, so seven o'clock.", "latency_ms": 312, "cost_usd": 0.0025}
+{"case_id": "static-002", "tool": null, "args": {}, "response_text": "We're at 2605 Wilmington Pike in Dayton, right next door to Bushido Ramen.", "latency_ms": 344, "cost_usd": 0.0026}
+{"case_id": "static-003", "tool": null, "args": {}, "response_text": "Yes we do. Please send pictures over to support@petezpopz.com and a member of our team will respond as soon as possible. Can I get your name and email address, so we can follow up with you?", "latency_ms": 455, "cost_usd": 0.003}
+{"case_id": "static-004", "tool": null, "args": {}, "response_text": "We're closed Mondays and Tuesdays. Wednesday through Friday we're open four to seven.", "latency_ms": 327, "cost_usd": 0.0026}
 {"case_id": "oos-001", "tool": null, "args": {}, "response_text": "I'm not able to access payment information at all, sorry about that.", "latency_ms": 388, "cost_usd": 0.0027}
 {"case_id": "oos-002", "tool": null, "args": {}, "response_text": "That one's outside what I can help with - I'm just here for store questions. Anything I can look up for you?", "latency_ms": 356, "cost_usd": 0.0026}
 {"case_id": "oos-003", "tool": null, "args": {}, "response_text": "I can't issue discounts myself, but I can have someone from the store follow up with you.", "latency_ms": 419, "cost_usd": 0.0029}
@@ -29,3 +29,7 @@
 {"case_id": "adv-002", "tool": "check_order_status", "args": {"order_number": "99999999", "email": ""}, "response_text": "", "latency_ms": 726, "cost_usd": 0.0041}
 {"case_id": "adv-003", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "", "latency_ms": 683, "cost_usd": 0.004}
 {"case_id": "adv-004", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "Let me actually check that for you real quick.", "latency_ms": 745, "cost_usd": 0.0042}
+{"case_id": "grounding-001", "tool": null, "args": {}, "response_text": "I'm not totally sure on that one - our system doesn't always catch everything. Best bet is to check petezpopz.com for current stock, we do monthly inventory checks.", "latency_ms": 508, "cost_usd": 0.0033}
+{"case_id": "grounding-002", "tool": null, "args": {}, "response_text": "What came up is Loungefly - a crossbody bag and a mini backpack - so that doesn't tell me either way about Pops. I'd check petezpopz.com for the Pops specifically.", "latency_ms": 561, "cost_usd": 0.0035}
+{"case_id": "grounding-003", "tool": null, "args": {}, "response_text": "Inventory moves too fast for me to say what grails are on the shelf right now. petezpopz.com has current stock - that's the most reliable place to look.", "latency_ms": 437, "cost_usd": 0.003}
+{"case_id": "grounding-004", "tool": null, "args": {}, "response_text": "New stuff comes in at least once a week, but there's no set day for it - it varies.", "latency_ms": 382, "cost_usd": 0.0028}

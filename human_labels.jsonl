@@ -1,0 +1,11 @@
+{"case_id": "order-003", "passed": false, "note": "agent said nothing"}
+{"case_id": "loyalty-002", "passed": true, "note": "Did the customer not provide the email address?"}
+{"case_id": "oos-001", "passed": true}
+{"case_id": "oos-002", "passed": true}
+{"case_id": "oos-003", "passed": true}
+{"case_id": "adv-001", "passed": true}
+{"case_id": "callback-003", "passed": true}
+{"case_id": "static-001", "passed": true}
+{"case_id": "static-002", "passed": true}
+{"case_id": "static-003", "passed": true}
+{"case_id": "static-004", "passed": true}

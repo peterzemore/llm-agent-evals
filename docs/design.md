@@ -16,12 +16,16 @@ This harness makes that class of change measurable and blockable.
 
 ## Scope decisions
 
-**Single turn, not whole conversations.** The failures above are decided on the
+**Single turn, plus primed second turns.** The failures above are decided on the
 first turn: which tool, which arguments, or whether to answer directly. Full
 conversation simulation costs more, is far noisier to grade, and would move the
-suite out of the "runs on every PR" budget. Multi-turn cases are worth adding
-later for the callback flow specifically, where the agent has to collect a name
-and a number across turns.
+suite out of the "runs on every PR" budget. A case may carry a `context` block - a tool call and its result - so the graded
+turn is what the agent says once it has data back. That was not optional: the
+grounding bugs (asserting absence off an inventory miss, reading an accessory
+as a Pop) all happen on that turn and are invisible to a single-turn harness.
+
+Fully multi-turn cases are still worth adding for the callback flow, where the
+agent has to collect a name and an email across turns.
 
 **Deterministic grading first, model grading only where it earns its place.**
 Tool selection and argument correctness are exact-match questions. Running a
@@ -58,8 +62,9 @@ that would happen by chance, and the rubber-stamp judge scores 0.0. There is a
 unit test asserting that specific case, because it is the property that makes
 the metric worth printing.
 
-The workflow: grade a sample of cases by hand, blind to the judge's verdicts,
-then `agent-evals calibrate`. `false_pass` is the list that matters most - the
+The workflow: `agent-evals label` to grade a sample by hand — it shows the
+rubric and the agent's turn but never the judge's verdict — then
+`agent-evals calibrate` to compare. `false_pass` is the list that matters most - the
 cases the judge waved through that a human failed. If kappa is below ~0.6, the
 rubric is ambiguous and needs rewriting before the judge's numbers mean
 anything.
@@ -97,11 +102,11 @@ new floor is a deliberate decision with its own diff.
   agent actually did, which is a starting point and explicitly not ground
   truth - grading an agent against its own past behavior measures consistency,
   not correctness.
-- **Sample size.** 28 cases supports a headline number to roughly the nearest
+- **Sample size.** 32 cases supports a headline number to roughly the nearest
   four points. Any per-category number here is directional only; those cells
   hold three to six cases each. 150-300 cases is where the category breakdown
   starts carrying real weight.
-- **No multi-turn coverage** (see above).
+- **No fully multi-turn coverage** (see above).
 - **Latency is measured against the API, not the phone.** It excludes
   transcription and text-to-speech, which dominate perceived latency on a real
   call. The number is useful for comparing prompt variants against each other,
