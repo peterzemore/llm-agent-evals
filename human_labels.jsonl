@@ -13,3 +13,7 @@
 {"case_id": "grounding-003", "passed": true, "note": "perfect response"}
 {"case_id": "grounding-004", "passed": true}
 {"case_id": "grounding-002", "passed": true}
+{"case_id": "callback-004", "passed": true}
+{"case_id": "grounding-005", "passed": true}
+{"case_id": "grounding-006", "passed": true}
+{"case_id": "grounding-007", "passed": true}
