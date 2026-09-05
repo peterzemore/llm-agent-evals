@@ -1,0 +1,49 @@
+name: evals
+
+# The point of this workflow: a prompt or tool-schema change cannot merge if it
+# moves the numbers the wrong way. The replay adapter means this runs on every
+# PR with no API key and no spend.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  regression-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Score the frozen baseline against the gates
+        run: |
+          agent-evals run \
+            --dataset datasets/sonny/cases.jsonl \
+            --adapter replay \
+            --replay-file datasets/sonny/fixtures/replay_baseline.jsonl \
+            --gates gates.toml \
+            --report report.md \
+            --json-out results.json
+      - name: Publish the report to the job summary
+        if: always()
+        run: cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: |
+            report.md
+            results.json

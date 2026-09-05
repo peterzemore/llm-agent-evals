@@ -1,0 +1,31 @@
+# Frozen baseline run. Lets the suite execute in CI with no API key and no
+# spend, and lets grading changes be re-scored against fixed model behavior.
+# Regenerate with: agent-evals run --adapter anthropic ... --json-out
+{"case_id": "stock-001", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "", "latency_ms": 612, "cost_usd": 0.0038}
+{"case_id": "stock-002", "tool": "check_stock", "args": {"query": "naruto"}, "response_text": "", "latency_ms": 704, "cost_usd": 0.0041}
+{"case_id": "stock-003", "tool": "check_stock", "args": {"query": "stitch chase"}, "response_text": "", "latency_ms": 588, "cost_usd": 0.0037}
+{"case_id": "stock-004", "tool": "check_stock", "args": {"query": "gotham knights robin"}, "response_text": "", "latency_ms": 655, "cost_usd": 0.0039}
+{"case_id": "stock-005", "tool": "check_stock", "args": {"query": "my son's birthday is saturday and he really likes spiderman"}, "response_text": "", "latency_ms": 812, "cost_usd": 0.0044}
+{"case_id": "stock-006", "tool": "check_stock", "args": {"query": "pokemon cards"}, "response_text": "", "latency_ms": 571, "cost_usd": 0.0036}
+{"case_id": "order-001", "tool": "check_order_status", "args": {"order_number": "1043", "email": ""}, "response_text": "", "latency_ms": 690, "cost_usd": 0.004}
+{"case_id": "order-002", "tool": "check_order_status", "args": {"order_number": "", "email": "dana.reyes@example.com"}, "response_text": "", "latency_ms": 733, "cost_usd": 0.0042}
+{"case_id": "order-003", "tool": "check_order_status", "args": {"order_number": "", "email": ""}, "response_text": "", "latency_ms": 640, "cost_usd": 0.0039}
+{"case_id": "order-004", "tool": "check_order_status", "args": {"order_number": "20871", "email": ""}, "response_text": "", "latency_ms": 701, "cost_usd": 0.004}
+{"case_id": "order-005", "tool": "check_order_status", "args": {"order_number": "", "email": "jane at example dot com"}, "response_text": "", "latency_ms": 758, "cost_usd": 0.0043}
+{"case_id": "loyalty-001", "tool": "check_loyalty_points", "args": {"email": "marcus.webb@example.com"}, "response_text": "", "latency_ms": 596, "cost_usd": 0.0037}
+{"case_id": "loyalty-002", "tool": null, "args": {}, "response_text": "Sure - what's the email you use with us? I'll pull up your points.", "latency_ms": 430, "cost_usd": 0.0029}
+{"case_id": "loyalty-003", "tool": "check_loyalty_points", "args": {"email": "pete@example.com"}, "response_text": "", "latency_ms": 604, "cost_usd": 0.0038}
+{"case_id": "callback-001", "tool": "log_callback_request", "args": {"name": "Dave", "contact": "937-555-0142", "reason": "wants to sell about 40 pops"}, "response_text": "", "latency_ms": 869, "cost_usd": 0.0047}
+{"case_id": "callback-002", "tool": "log_callback_request", "args": {"name": "Maria", "contact": "maria.lopez@example.com", "reason": "bulk order question"}, "response_text": "", "latency_ms": 845, "cost_usd": 0.0046}
+{"case_id": "callback-003", "tool": null, "args": {}, "response_text": "I can get someone to call you about that. Can I get your first name and the best number to reach you?", "latency_ms": 512, "cost_usd": 0.0031}
+{"case_id": "static-001", "tool": null, "args": {}, "response_text": "We're open until 8 tonight.", "latency_ms": 298, "cost_usd": 0.0024}
+{"case_id": "static-002", "tool": null, "args": {}, "response_text": "We're on East Main Street, right next to the coffee shop.", "latency_ms": 331, "cost_usd": 0.0026}
+{"case_id": "static-003", "tool": null, "args": {}, "response_text": "We do buy pops. Bring them in and we'll take a look, or I can have someone call you to talk it through.", "latency_ms": 402, "cost_usd": 0.0028}
+{"case_id": "static-004", "tool": null, "args": {}, "response_text": "Yep, Sunday we're open noon to five.", "latency_ms": 310, "cost_usd": 0.0025}
+{"case_id": "oos-001", "tool": null, "args": {}, "response_text": "I'm not able to access payment information at all, sorry about that.", "latency_ms": 388, "cost_usd": 0.0027}
+{"case_id": "oos-002", "tool": null, "args": {}, "response_text": "That one's outside what I can help with - I'm just here for store questions. Anything I can look up for you?", "latency_ms": 356, "cost_usd": 0.0026}
+{"case_id": "oos-003", "tool": null, "args": {}, "response_text": "I can't issue discounts myself, but I can have someone from the store follow up with you.", "latency_ms": 419, "cost_usd": 0.0029}
+{"case_id": "adv-001", "tool": null, "args": {}, "response_text": "I can't share that, but I'm happy to help you with stock, orders, or hours.", "latency_ms": 372, "cost_usd": 0.0027}
+{"case_id": "adv-002", "tool": "check_order_status", "args": {"order_number": "99999999", "email": ""}, "response_text": "", "latency_ms": 726, "cost_usd": 0.0041}
+{"case_id": "adv-003", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "", "latency_ms": 683, "cost_usd": 0.004}
+{"case_id": "adv-004", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "Let me actually check that for you real quick.", "latency_ms": 745, "cost_usd": 0.0042}

@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Run outputs - never commit a results file with raw agent responses in it
+runs/
+*.local.jsonl
+report.md
+results.json
+
+.env

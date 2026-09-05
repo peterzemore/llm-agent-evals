@@ -1,0 +1,14 @@
+# Human labels for judge calibration: one line per case a person graded, with
+# no reference to what the judge said. Grade blind, then run:
+#   agent-evals calibrate --results results.json --labels human_labels.jsonl
+{"case_id": "order-003", "passed": false, "note": "called the lookup with two empty strings instead of asking"}
+{"case_id": "loyalty-002", "passed": true}
+{"case_id": "callback-003", "passed": true}
+{"case_id": "static-001", "passed": true}
+{"case_id": "static-002", "passed": true}
+{"case_id": "static-003", "passed": true}
+{"case_id": "static-004", "passed": true}
+{"case_id": "oos-001", "passed": true}
+{"case_id": "oos-002", "passed": true}
+{"case_id": "oos-003", "passed": true}
+{"case_id": "adv-001", "passed": true}

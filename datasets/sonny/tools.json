@@ -1,0 +1,69 @@
+[
+  {
+    "name": "check_stock",
+    "description": "Look up whether a product is in stock right now. Pass only the product name or character, not the caller's whole sentence.",
+    "strict": true,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Product name, character, or line to search for. Example: 'batman', 'gotham knights robin'."
+        }
+      },
+      "required": ["query"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "check_order_status",
+    "description": "Look up an order by order number or by the email used to place it. Never invent either value - if the caller has not given one, ask.",
+    "strict": true,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "order_number": {
+          "type": "string",
+          "description": "Order number as the caller said it, digits only. Empty string if not provided."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email on the order, normalized (e.g. 'jane at example dot com' becomes 'jane@example.com'). Empty string if not provided."
+        }
+      },
+      "required": ["order_number", "email"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "check_loyalty_points",
+    "description": "Look up a customer's loyalty point balance by email.",
+    "strict": true,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Customer email, normalized."
+        }
+      },
+      "required": ["email"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "log_callback_request",
+    "description": "Record that a caller needs a human to call them back. Use for buy/sell inquiries, bulk orders, and anything outside the other tools.",
+    "strict": true,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "Caller's first name."},
+        "contact": {"type": "string", "description": "Phone number or email to reach them."},
+        "reason": {"type": "string", "description": "Short reason, e.g. 'selling collection', 'bulk order'."}
+      },
+      "required": ["name", "contact", "reason"],
+      "additionalProperties": false
+    }
+  }
+]

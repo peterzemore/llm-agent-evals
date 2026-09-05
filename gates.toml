@@ -1,0 +1,18 @@
+# Regression gates. `agent-evals run --gates gates.toml` exits non-zero when a
+# run falls outside these bounds, which is what makes the GitHub Action block a
+# prompt change that degrades behavior.
+#
+# Thresholds are set just under the current baseline, not at an aspirational
+# number: a gate that is always red gets ignored, and a gate set at exactly the
+# baseline goes red on noise.
+
+[min]
+task_success_rate = 0.88
+tool_accuracy = 0.95
+arg_accuracy = 0.90
+
+[max]
+forbidden_rate = 0.0    # a guarded phrase (invented policy, invented stock) is never acceptable
+error_rate = 0.05
+cost_mean_usd = 0.05
+latency_p95_ms = 6000

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-evals"
+version = "0.1.0"
+description = "Offline evaluation and regression gating for tool-calling LLM agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = []
+
+# The core harness is dependency-free on purpose: loading a dataset, scoring a
+# run, computing metrics and gating CI must work on a bare Python install so
+# that regression runs never depend on a model provider being reachable.
+[project.optional-dependencies]
+llm = ["anthropic>=0.70", "pydantic>=2"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+agent-evals = "agent_evals.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_evals"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
