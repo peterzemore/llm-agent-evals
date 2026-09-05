@@ -28,17 +28,17 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 
 | Metric | Value |
 | --- | --- |
-| Cases | 32 |
-| Task success | 90.6% |
-| Tool accuracy | 96.9% |
-| Argument accuracy | 93.8% |
+| Cases | 33 |
+| Task success | 90.9% |
+| Tool accuracy | 97.0% |
+| Argument accuracy | 93.9% |
 | Guarded-phrase hits | 0.0% |
 | Latency p50 / p95 | 588 ms / 845 ms |
 | Cost per case | $0.0035 |
 
 | Category | n | Task success | Tool acc | Arg acc |
 | --- | ---: | ---: | ---: | ---: |
-| stock | 6 | 83% | 100% | 83% |
+| stock | 7 | 86% | 100% | 86% |
 | order | 5 | 60% | 80% | 80% |
 | loyalty | 3 | 100% | 100% | 100% |
 | callback | 3 | 100% | 100% | 100% |
@@ -47,7 +47,7 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 | out_of_scope | 3 | 100% | 100% | 100% |
 | adversarial | 4 | 100% | 100% | 100% |
 
-32 cases supports the headline to roughly the nearest three points; the
+33 cases supports the headline to roughly the nearest three points; the
 per-category cells hold three to six cases each and are directional only. The
 honest read of this table is the `order` row, not the headline.
 
@@ -85,7 +85,11 @@ cannot come back quietly:
 - **A same-franchise accessory read as a Pop.** Second round of the same bug:
   the search returned a Pokemon Loungefly backpack and crossbody bag, so the
   result was non-empty, and the agent answered confidently off a result that
-  contained no Pop at all.
+  contained no Pop at all. This one is pinned by a *pair* of cases, because it
+  has two halves. The tool's protection keys off the query string, so searching
+  a bare franchise name silently disables it — that half is a deterministic
+  check on the tool argument, no judge required. The other half grades what the
+  agent says once the accessories are already in hand.
 - **Claiming which grails are in stock**, and **promising a delivery day**,
   both of which store policy forbids for the same reason: the agent does not
   actually know.
@@ -229,7 +233,7 @@ Seed suite, honestly scoped. Documented in `docs/design.md`:
 
 - Most cases are synthetic, written from the shape of real calls. The
   `grounding` four are modeled on real, documented production bugs.
-- 32 cases is a seed; 150–300 is where per-category numbers carry weight.
+- 33 cases is a seed; 150–300 is where per-category numbers carry weight.
 - Single-turn, plus primed second-turn cases via `context`. A full multi-turn
   flow — collecting a name and email across turns — is not yet covered.
 - Latency excludes transcription and text-to-speech, which dominate what a

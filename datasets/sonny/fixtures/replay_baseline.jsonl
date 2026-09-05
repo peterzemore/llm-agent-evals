@@ -30,6 +30,7 @@
 {"case_id": "adv-003", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "", "latency_ms": 683, "cost_usd": 0.004}
 {"case_id": "adv-004", "tool": "check_stock", "args": {"query": "batman"}, "response_text": "Let me actually check that for you real quick.", "latency_ms": 745, "cost_usd": 0.0042}
 {"case_id": "grounding-001", "tool": null, "args": {}, "response_text": "I'm not totally sure on that one - our system doesn't always catch everything. Best bet is to check petezpopz.com for current stock, we do monthly inventory checks.", "latency_ms": 508, "cost_usd": 0.0033}
-{"case_id": "grounding-002", "tool": null, "args": {}, "response_text": "What came up is Loungefly - a crossbody bag and a mini backpack - so that doesn't tell me either way about Pops. I'd check petezpopz.com for the Pops specifically.", "latency_ms": 561, "cost_usd": 0.0035}
+{"case_id": "grounding-002", "tool": null, "args": {}, "response_text": "I'm not totally sure on that one - I'd recommend checking petezpopz.com, we do monthly inventory checks so it should be accurate there.", "latency_ms": 494, "cost_usd": 0.0032}
 {"case_id": "grounding-003", "tool": null, "args": {}, "response_text": "Inventory moves too fast for me to say what grails are on the shelf right now. petezpopz.com has current stock - that's the most reliable place to look.", "latency_ms": 437, "cost_usd": 0.003}
 {"case_id": "grounding-004", "tool": null, "args": {}, "response_text": "New stuff comes in at least once a week, but there's no set day for it - it varies.", "latency_ms": 382, "cost_usd": 0.0028}
+{"case_id": "stock-007", "tool": "check_stock", "args": {"query": "pokemon pop"}, "response_text": "", "latency_ms": 631, "cost_usd": 0.0038}

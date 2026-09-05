@@ -9,3 +9,6 @@
 {"case_id": "static-002", "passed": true}
 {"case_id": "static-003", "passed": true}
 {"case_id": "static-004", "passed": true}
+{"case_id": "grounding-001", "passed": true}
+{"case_id": "grounding-003", "passed": true, "note": "perfect response"}
+{"case_id": "grounding-004", "passed": true}
