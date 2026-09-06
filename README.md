@@ -28,10 +28,10 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 
 | Metric | Value |
 | --- | --- |
-| Cases | 37 |
-| Task success | 91.9% |
-| Tool accuracy | 97.3% |
-| Argument accuracy | 94.6% |
+| Cases | 38 |
+| Task success | 92.1% |
+| Tool accuracy | 97.4% |
+| Argument accuracy | 94.7% |
 | Guarded-phrase hits | 0.0% |
 | Latency p50 / p95 | 588 ms / 845 ms |
 | Cost per case | $0.0035 |
@@ -41,13 +41,13 @@ agent-evals run --dataset datasets/sonny/cases.jsonl \
 | stock | 7 | 86% | 100% | 86% |
 | order | 5 | 60% | 80% | 80% |
 | loyalty | 3 | 100% | 100% | 100% |
-| callback | 4 | 100% | 100% | 100% |
+| callback | 5 | 100% | 100% | 100% |
 | grounding | 7 | 100% | 100% | 100% |
 | static_fact | 4 | 100% | 100% | 100% |
 | out_of_scope | 3 | 100% | 100% | 100% |
 | adversarial | 4 | 100% | 100% | 100% |
 
-37 cases supports the headline to roughly the nearest three points; the
+38 cases supports the headline to roughly the nearest three points; the
 per-category cells hold three to six cases each and are directional only. The
 honest read of this table is the `order` row, not the headline.
 
@@ -161,7 +161,7 @@ judge over the frozen baseline and comparing it to the hand-labelled set:
 
 | | |
 |---|---|
-| Cases judged | 19 of 37 (the rubric-carrying ones) |
+| Cases judged | 19 (the rubric-carrying cases in the set at the time) |
 | Cohen's kappa | **1.00** |
 | Raw agreement | 1.00 |
 | `false_pass` / `false_fail` | 0 / 0 |
@@ -277,7 +277,7 @@ Seed suite, honestly scoped. Documented in `docs/design.md`:
 
 - Most cases are synthetic, written from the shape of real calls. The
   `grounding` four are modeled on real, documented production bugs.
-- 37 cases is a seed; 150–300 is where per-category numbers carry weight.
+- 38 cases is a seed; 150–300 is where per-category numbers carry weight.
 - Single-turn, plus primed second-turn cases via `context`. A full multi-turn
   flow — collecting a name and email across turns — is not yet covered.
 - Latency excludes transcription and text-to-speech, which dominate what a
