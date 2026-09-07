@@ -1,5 +1,7 @@
 # agent-evals
 
+> **Write-up:** [Two phone calls, four bugs, zero exceptions: how the suite was actually used.](docs/writeup.md)
+
 Offline evaluation and CI regression gating for tool-calling LLM agents.
 
 A tool-calling agent in production fails quietly. It doesn't throw an exception
