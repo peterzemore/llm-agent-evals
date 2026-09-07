@@ -1,6 +1,4 @@
 # Two phone calls, four bugs, zero exceptions
-*Draft for a pinned GitHub Discussion on peterzemore/llm-agent-evals. About 850 words.*
-
 The agent that answers my store's phone has never crashed. That is the problem.
 
 It is a voice agent with four tools: check stock, look up an order, check loyalty
