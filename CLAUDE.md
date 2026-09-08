@@ -22,3 +22,9 @@ Read the README first. This is what a session needs that it doesn't say.
   `json.loads` per line.
 - Selection criterion on validation, ties, guards, and gates are deliberate design
   calls documented in the README; don't re-litigate them in a fix.
+
+## Write-up (2026-09-07)
+
+`docs/writeup.md` ("Two phone calls, four bugs, zero exceptions") is linked from the README and
+quotes the suite numbers (38 cases, 92.1% task success, kappa 1.00 on n=19 deliberately not
+claimed). If the results table changes, update the write-up in the same commit.
